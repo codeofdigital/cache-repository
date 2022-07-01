@@ -1,0 +1,51 @@
+{
+    "name": "codeofdigital/cache-repository",
+    "description": "Laravel Repository Package with Caching",
+    "homepage": "https://github.com/codeofdigital/cache-repository",
+    "keywords": [
+        "codeofdigital",
+        "laravel",
+        "cache",
+        "repository",
+        "design pattern",
+        "model",
+        "SOLID"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bryan Adam Loh",
+            "email": "bryanadamloh97@gmail.com"
+        }
+    ],
+    "require": {
+        "illuminate/http": "~5.0|~6.0|~7.0|^8.0|^9.0",
+        "illuminate/config": "~5.0|~6.0|~7.0|^8.0|^9.0",
+        "illuminate/support": "~5.0|~6.0|~7.0|^8.0|^9.0",
+        "illuminate/database": "~5.0|~6.0|~7.0|^8.0|^9.0",
+        "illuminate/pagination": "~5.0|~6.0|~7.0|^8.0|^9.0",
+        "illuminate/console": "~5.0|~6.0|~7.0|^8.0|^9.0",
+        "illuminate/filesystem": "~5.0|~6.0|~7.0|^8.0|^9.0",
+        "illuminate/validation": "~5.0|~6.0|~7.0|^8.0|^9.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^4.0|^5.0|^6.0",
+        "phpunit/phpunit": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "CodeOfDigital\\CacheRepository\\": "src/"
+        }
+    },
+    "scripts": {
+        "tests": "./vendor/bin/phpunit --colors=always"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "CodeOfDigital\\CacheRepository\\CacheRepositoryServiceProvider"
+            ]
+        }
+    }
+}
