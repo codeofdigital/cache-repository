@@ -1,15 +1,8 @@
 <?php
-namespace Prettus\Repository\Events;
 
-/**
- * Class RepositoryEntityDeleted
- * @package Prettus\Repository\Events
- * @author Anderson Andrade <contato@andersonandra.de>
- */
+namespace CodeOfDigital\CacheRepository\Events;
+
 class RepositoryEntityDeleting extends RepositoryEventBase
 {
-    /**
-     * @var string
-     */
-    protected $action = "deleting";
+    protected string $action = "deleting";
 }

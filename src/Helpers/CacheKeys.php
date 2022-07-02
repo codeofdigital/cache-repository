@@ -19,7 +19,7 @@ class CacheKeys
         self::storeKeys();
     }
 
-    public static function loadKeys()
+    public static function loadKeys(): array
     {
         if (!empty(self::$keys)) {
             return self::$keys;
@@ -51,7 +51,7 @@ class CacheKeys
         return file_put_contents($file, $content);
     }
 
-    public static function getKeys($group)
+    public static function getKeys($group): array
     {
         self::loadKeys();
         self::$keys[$group] = self::$keys[$group] ?? [];
