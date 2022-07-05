@@ -12,7 +12,7 @@ interface CacheableInterface
 
     public function getCacheKey($method, $args = null): string;
 
-    public function getCacheTime(): int;
+    public function getCacheTTL(): float|int;
 
     public function skipCache($status = true): static;
 }

@@ -3,19 +3,38 @@
 namespace CodeOfDigital\CacheRepository\Eloquent;
 
 use Closure;
+use CodeOfDigital\CacheRepository\Events\RepositoryEntityCreated;
+use CodeOfDigital\CacheRepository\Events\RepositoryEntityDeleted;
+use CodeOfDigital\CacheRepository\Events\RepositoryEntityUpdated;
 use CodeOfDigital\CacheRepository\Exceptions\RepositoryException;
 use CodeOfDigital\CacheRepository\Contracts\RepositoryInterface;
 use Illuminate\Container\Container as Application;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Config;
 
 abstract class BaseRepository implements RepositoryInterface
 {
+    /**
+     * @var Application
+     */
     protected Application $app;
-    protected Model $model;
-    protected ?Closure $scopeQuery = null;
+
+    /**
+     * Base model according to model set in repository
+     *
+     * @var Model|Builder
+     */
+    protected Model|Builder $model;
+
+    /**
+     * Query set within the scope
+     *
+     * @var Closure|null
+     */
+    protected ?Closure $scopeQuery;
 
     public function __construct(Application $app)
     {
@@ -74,8 +93,7 @@ abstract class BaseRepository implements RepositoryInterface
     {
         $this->applyScope();
 
-        if ($this->model instanceof Builder) $results = $this->model->get($columns);
-        else $results = $this->model->all($columns);
+        $results = $this->model->get($columns);
 
         $this->resetModel();
         $this->resetScope();
@@ -216,6 +234,71 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
+    public function create(array $attributes): Model
+    {
+        $model = $this->model->newInstance($attributes);
+        $model->save();
+        $this->resetModel();
+
+        event(new RepositoryEntityCreated($this, $model));
+
+        return $model;
+    }
+
+    public function update(array $attributes, $id)
+    {
+        $this->applyScope();
+
+        $model = $this->model->findOrFail($id);
+        $model->fill($attributes);
+        $model->save();
+
+        event(new RepositoryEntityUpdated($this, $model));
+
+        return $model;
+    }
+
+    public function updateOrCreate(array $attributes, array $values = [])
+    {
+        $this->applyScope();
+
+        $model = $this->model->updateOrCreate($attributes, $values);
+        $this->resetModel();
+
+        event(new RepositoryEntityUpdated($this, $model));
+
+        return $model;
+    }
+
+    public function delete(int $id): Model
+    {
+        return $this->manageDeletes($id, 'delete');
+    }
+
+    public function deleteWhere(array $where): ?bool
+    {
+        $this->applyScope();
+        $this->applyConditions($where);
+
+        $deleted = $this->model->delete();
+
+        event(new RepositoryEntityDeleted($this, $this->model->getModel()));
+
+        $this->resetModel();
+
+        return $deleted;
+    }
+
+    public function forceDelete(int $id): Model
+    {
+        return $this->manageDeletes($id, 'forceDelete');
+    }
+
+    public function restore(int $id): Model
+    {
+        return $this->manageDeletes($id, 'restore');
+    }
+
     public function has($relation): BaseRepository
     {
         return tap($this, function () use ($relation) {
@@ -287,6 +370,26 @@ abstract class BaseRepository implements RepositoryInterface
                 $this->model = $callback($this->model);
             }
         });
+    }
+
+    protected function manageDeletes(int $id, string $method)
+    {
+        $this->applyScope();
+
+        if (($method === 'forceDelete' || $method === 'restore') && !in_array(SoftDeletes::class, class_uses($this->model)))
+            throw new RepositoryException("Model must implement SoftDeletes Trait to use forceDelete() or restore() method.");
+
+        $model = $this->model->withTrashed()->find($id);
+        $originalModel = clone $model;
+
+        $this->resetModel();
+
+        $model->{$method}();
+
+        if ($method === 'restore') event(new RepositoryEntityUpdated($this, $originalModel));
+        else event(new RepositoryEntityDeleted($this, $originalModel));
+
+        return $model;
     }
 
     protected function applyConditions(array $where)

@@ -1,0 +1,21 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ model }};
+use {{ interfaceNamespace }};
+
+use CodeOfDigital\CacheRepository\Eloquent\BaseRepository;
+
+class {{ modelName }}Repository extends BaseRepository implements {{ interface }}
+{
+    /**
+     * Specify Model class name
+     *
+     * @return string
+     */
+    public function model()
+    {
+        return {{ modelName }}::class;
+    }
+}
