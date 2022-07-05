@@ -25,7 +25,7 @@ class RepositoryEventSubscriber
 
     public function __construct()
     {
-        $this->cache = app(Config::get('repository.cache.repository', 'cache'));
+        $this->cache = app(Config::get('repository.cache.repository', 'cache.store'));
     }
 
     public function handleCleanCache(RepositoryEventBase $eventBase): void

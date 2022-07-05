@@ -1,10 +1,10 @@
 <?php
 
-namespace {{ namespace }};
+namespace %namespace%;
 
 use CodeOfDigital\CacheRepository\Contracts\RepositoryInterface;
 
-interface {{ model }}RepositoryInterface extends RepositoryInterface
+interface %model%RepositoryInterface extends RepositoryInterface
 {
-    \\ TODO: Add your functions here...
+    // TODO: Add your functions here...
 }

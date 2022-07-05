@@ -28,8 +28,16 @@ class RepositoryCommand extends BaseCommand
      */
     protected array $stubs = [
         'interface' => __DIR__ . '/stubs/repository-interface.stub',
-        'repository' => __DIR__ . '/stubs/repository.stub'
+        'repository' => __DIR__ . '/stubs/repository.stub',
+        'cache-repository' => __DIR__ .'/stubs/cache-repository.stub'
     ];
+
+    /**
+     * Boolean check to skip methods being executed
+     *
+     * @var bool
+     */
+    protected bool $skip = false;
 
     public function __construct()
     {
@@ -39,34 +47,38 @@ class RepositoryCommand extends BaseCommand
     public function handle()
     {
         $this->checkModel();
-        list($interface, $interfaceName) = $this->createInterface();
-        $this->createRepository($interface, $interfaceName);
+
+        if (!$this->skip) {
+            list($interface, $interfaceName) = $this->createInterface();
+            $this->createRepository($interface, $interfaceName);
+        }
     }
 
     protected function checkModel()
     {
-        $model = $this->appNamespace.$this->getSingularName($this->argument('model'));
+        $model = $this->getSingularName($this->argument('model'));
 
-        $this->model = str_replace('/', '\\', $model);
+        $modelParts = explode('\\', $model);
+        $this->modelName = $modelParts[array_key_last($modelParts)];
+
+        $this->model = $this->appNamespace."{$model}";
 
         if ($this->laravel->runningInConsole()) {
             if (!class_exists($this->model)) {
-                $response = $this->ask("Model [{$this->model}] does not exist. Would you like to create it?", 'Yes');
+                $response = $this->ask("Model [{$this->modelName}] does not exist. Would you like to create it?", 'Yes');
 
                 if ($this->isResponsePositive($response)) {
                     Artisan::call('make:model', [
                         'name' => $this->model
                     ]);
 
-                    $this->info("Model [{$this->model}] has been successfully created.");
+                    $this->info("Model [{$this->modelName}] has been successfully created.");
                 } else {
-                    $this->info("Model [{$this->model}] will be skipped.");
+                    $this->info("Model [{$this->modelName}] will be skipped. No repository class will be created.");
+                    $this->skip = true;
                 }
             }
         }
-
-        $modelInfo = explode('\\', $this->model);
-        $this->modelName = $modelInfo[array_key_last($modelInfo)];
     }
 
     /**
@@ -82,24 +94,24 @@ class RepositoryCommand extends BaseCommand
         $content = $this->fileManager->get($this->stubs['interface']);
 
         $replacements = [
-            '{{ namespace }}' => "{$this->appNamespace}\Repository\{$this->modelName}",
-            '{{ model }}' => $this->modelName
+            '%namespace%' => "{$this->appNamespace}Repository\\{$this->modelName}",
+            '%model%' => $this->modelName
         ];
 
         $content = str_replace(array_keys($replacements), array_values($replacements), $content);
 
         $fileName = "{$this->modelName}RepositoryInterface";
         $fileDirectory = app()->basePath() . "/App/Repository/{$this->modelName}";
-        $filePath = "{$fileDirectory}{$fileName}.php";
+        $filePath = "{$fileDirectory}/{$fileName}.php";
 
         if (!$this->fileManager->exists($fileDirectory))
             $this->fileManager->makeDirectory($fileDirectory, 0755, true);
 
-        if ($this->laravel->runningInConsole() && $this->fileManager->exists($fileDirectory)) {
+        if ($this->laravel->runningInConsole() && $this->fileManager->exists($filePath)) {
             $response = $this->ask("The interface [{$fileName}] has already exists. Do you want to overwrite it?", 'Yes');
 
             if (!$this->isResponsePositive($response)) {
-                $this->line("The interface [{$fileName}] will not be overwritten.");
+                $this->info("The interface [{$fileName}] will not be overwritten.");
                 return;
             }
         }
@@ -108,7 +120,7 @@ class RepositoryCommand extends BaseCommand
 
         $this->info("The interface [{$fileName}] has been created");
 
-        return ["{$this->appNamespace}\Repository\{$this->modelName}\{$fileName}", $fileName];
+        return ["{$this->appNamespace}Repository\\{$this->modelName}\\{$fileName}", $fileName];
     }
 
     /**
@@ -123,21 +135,22 @@ class RepositoryCommand extends BaseCommand
      */
     protected function createRepository(string $interface, string $fileName)
     {
-        $content = $this->fileManager->get($this->stubs['repository']);
+        if ($this->hasOption('cache')) $content = $this->fileManager->get($this->stubs['cache-repository']);
+        else $content = $this->fileManager->get($this->stubs['repository']);
 
         $replacements = [
-            '{{ interfaceNamespace }}' => "{$this->appNamespace}{$interface}",
-            '{{ interface }}' => $fileName,
-            '{{ model }}' => $this->model,
-            '{{ modelName }}' => $this->modelName,
-            '{{ namespace }}' => "{$this->appNamespace}\Repository\{$this->modelName}"
+            '%interfaceNamespace%' => "{$interface}",
+            '%interface%' => $fileName,
+            '%model%' => $this->model,
+            '%modelName%' => $this->modelName,
+            '%namespace%' => "{$this->appNamespace}Repository\\{$this->modelName}"
         ];
 
         $content = str_replace(array_keys($replacements), array_values($replacements), $content);
 
         $fileName = "{$this->modelName}Repository";
         $fileDirectory = app()->basePath() . "/App/Repository/{$this->modelName}";
-        $filePath = "{$fileDirectory}{$fileName}.php";
+        $filePath = "{$fileDirectory}/{$fileName}.php";
 
         if (!$this->fileManager->exists($fileDirectory))
             $this->fileManager->makeDirectory($fileDirectory, 0755, true);
@@ -153,7 +166,7 @@ class RepositoryCommand extends BaseCommand
 
         $this->fileManager->put($filePath, $content);
 
-        $this->info("The repository [{$filePath}] has been created.");
+        $this->info("The repository [{$fileName}] has been created.");
     }
 
 

@@ -41,7 +41,7 @@ trait Cacheable
         if (isset($this->cacheRepository))
             return $this->cacheRepository;
 
-        return app(Config::get('repository.cache.repository', 'cache'));
+        return app(Config::get('repository.cache.repository', 'cache.store'));
     }
 
     public function skipCache($status = true): static
@@ -161,16 +161,16 @@ trait Cacheable
         return $value;
     }
 
-    public function findByField(int $id, $value = null, $columns = ['*'])
+    public function findByField(string $field, $value = null, $columns = ['*'])
     {
         if (!$this->allowedCache('findByField') || $this->isSkippedCache()) {
-            return parent::findByField($id, $columns);
+            return parent::findByField($field, $columns);
         }
 
         $key = $this->getCacheKey('findByField', func_get_args());
         $minutes = $this->cacheMinutes;
-        $value = $this->cacheRepository->remember($key, $minutes, function () use ($id, $columns) {
-            return parent::findByField($id, $columns);
+        $value = $this->cacheRepository->remember($key, $minutes, function () use ($field, $columns) {
+            return parent::findByField($field, $columns);
         });
 
         $this->resetModel();

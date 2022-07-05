@@ -18,9 +18,9 @@ interface RepositoryInterface
 
     public function simplePaginate($limit = null, $columns = ['*']);
 
-    public function find($id, $columns = ['*']);
+    public function find(int $id, $columns = ['*']);
 
-    public function findByField($field, $value, $columns = ['*']);
+    public function findByField(string $field, $value, $columns = ['*']);
 
     public function findWhere(array $where, $columns = ['*']);
 

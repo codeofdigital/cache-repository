@@ -179,7 +179,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->paginate($limit, $columns, "simplePaginate");
     }
 
-    public function find($id, $columns = ['*'])
+    public function find(int $id, $columns = ['*'])
     {
         $this->applyScope();
         $model = $this->model->findOrFail($id, $columns);
@@ -188,7 +188,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findByField($field, $value = null, $columns = ['*'])
+    public function findByField(string $field, $value = null, $columns = ['*'])
     {
         $this->applyScope();
         $model = $this->model->where($field, '=', $value)->get($columns);

@@ -47,7 +47,7 @@ return [
          | Instance of Illuminate\Contracts\Cache\Repository
          |
          */
-        'repository' => 'cache',
+        'repository' => 'cache.store',
 
         /*
           |--------------------------------------------------------------------------

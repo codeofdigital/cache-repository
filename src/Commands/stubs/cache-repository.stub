@@ -3,9 +3,9 @@
 namespace %namespace%;
 
 use %model%;
-use CodeOfDigital\CacheRepository\Eloquent\BaseRepository;
+use CodeOfDigital\CacheRepository\Eloquent\CacheRepository;
 
-class %modelName%Repository extends BaseRepository implements %interface%
+class %modelName%Repository extends CacheRepository implements %interface%
 {
     /**
      * Specify Model class name
