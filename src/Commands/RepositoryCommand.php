@@ -135,7 +135,7 @@ class RepositoryCommand extends BaseCommand
      */
     protected function createRepository(string $interface, string $fileName)
     {
-        if ($this->hasOption('cache')) $content = $this->fileManager->get($this->stubs['cache-repository']);
+        if ($this->option('cache')) $content = $this->fileManager->get($this->stubs['cache-repository']);
         else $content = $this->fileManager->get($this->stubs['repository']);
 
         $replacements = [
