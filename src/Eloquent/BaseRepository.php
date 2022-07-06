@@ -67,29 +67,22 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->model = $model;
     }
 
-    public function scopeQuery(Closure $scope): BaseRepository
-    {
-        return tap($this, function () use ($scope) {
-            $this->scopeQuery = $scope;
-        });
-    }
-
-    public function pluck($column, $key = null): Collection
+    public function pluck($column, $key = null): Collection|array
     {
         return $this->model->pluck($column, $key);
     }
 
-    public function sync($id, $relation, $attributes, $detaching = true)
+    public function sync($id, $relation, $attributes, $detaching = true): mixed
     {
         return $this->find($id)->{$relation}()->sync($attributes, $detaching);
     }
 
-    public function syncWithoutDetaching($id, $relation, $attributes)
+    public function syncWithoutDetaching($id, $relation, $attributes): mixed
     {
         return $this->sync($id, $relation, $attributes, false);
     }
 
-    public function all($columns = ['*']): Collection|array
+    public function all($columns = ['*']): mixed
     {
         $this->applyScope();
 
@@ -115,7 +108,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $result;
     }
 
-    public function get($columns = ['*']): Collection|array
+    public function get($columns = ['*']): mixed
     {
         return $this->all($columns);
     }
@@ -153,7 +146,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function limit($limit, $columns = ['*']): array|Collection
+    public function limit($limit, $columns = ['*']): mixed
     {
         $this->take($limit);
         return $this->all($columns);
@@ -174,7 +167,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $results;
     }
 
-    public function simplePaginate($limit = null, $columns = ['*'])
+    public function simplePaginate($limit = null, $columns = ['*']): mixed
     {
         return $this->paginate($limit, $columns, "simplePaginate");
     }
@@ -299,70 +292,77 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->manageDeletes($id, 'restore');
     }
 
-    public function has($relation): BaseRepository
+    public function has($relation): static
     {
         return tap($this, function () use ($relation) {
             $this->model = $this->model->has($relation);
         });
     }
 
-    public function with($relations): BaseRepository
+    public function with($relations): static
     {
         return tap($this, function () use ($relations) {
             $this->model = $this->model->with($relations);
         });
     }
 
-    public function withCount($relations): BaseRepository
+    public function withCount($relations): static
     {
         return tap($this, function () use ($relations) {
             $this->model = $this->model->withCount($relations);
         });
     }
 
-    public function whereHas(string $relation, Closure $closure): BaseRepository
+    public function whereHas(string $relation, Closure $closure): static
     {
         return tap($this, function () use ($relation, $closure) {
             $this->model = $this->model->whereHas($relation, $closure);
         });
     }
 
-    public function hidden(array $fields): BaseRepository
+    public function hidden(array $fields): static
     {
         return tap($this, function () use ($fields) {
             $this->model->setHidden($fields);
         });
     }
 
-    public function visible(array $fields): BaseRepository
+    public function visible(array $fields): static
     {
         return tap($this, function () use ($fields) {
             $this->model->setVisible($fields);
         });
     }
 
-    public function orderBy($column, $direction = 'asc'): BaseRepository
+    public function orderBy($column, $direction = 'asc'): static
     {
         return tap($this, function () use ($column, $direction) {
             $this->model = $this->model->orderBy($column, $direction);
         });
     }
 
-    public function take($limit): BaseRepository
+    public function take($limit): static
     {
         return tap($this, function () use ($limit) {
             $this->model = $this->model->limit($limit);
         });
     }
 
-    public function resetScope(): BaseRepository
+    public function scopeQuery(Closure $scope): static
+    {
+        return tap($this, function () use ($scope) {
+            $this->scopeQuery = $scope;
+        });
+    }
+
+    public function resetScope(): static
     {
         return tap($this, function () {
             $this->scopeQuery = null;
         });
     }
 
-    public function applyScope(): BaseRepository
+    public function applyScope(): static
     {
         return tap($this, function () {
             if (isset($this->scopeQuery) && is_callable($this->scopeQuery)) {
