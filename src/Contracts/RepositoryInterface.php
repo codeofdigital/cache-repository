@@ -32,7 +32,7 @@ interface RepositoryInterface
 
     public function create(array $attributes);
 
-    public function update(array $attributes, $id);
+    public function update(array $attributes, int $id);
 
     public function updateOrCreate(array $attributes, array $values = []);
 

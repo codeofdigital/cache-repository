@@ -67,14 +67,14 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->model = $model;
     }
 
-    public function scopeQuery(\Closure $scope): BaseRepository
+    public function scopeQuery(Closure $scope): BaseRepository
     {
         return tap($this, function () use ($scope) {
             $this->scopeQuery = $scope;
         });
     }
 
-    public function pluck($column, $key = null)
+    public function pluck($column, $key = null): Collection
     {
         return $this->model->pluck($column, $key);
     }
@@ -89,7 +89,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->sync($id, $relation, $attributes, false);
     }
 
-    public function all($columns = ['*'])
+    public function all($columns = ['*']): Collection|array
     {
         $this->applyScope();
 
@@ -101,7 +101,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $results;
     }
 
-    public function count(array $where = [], $columns = '*')
+    public function count(array $where = [], $columns = '*'): int
     {
         $this->applyScope();
 
@@ -115,12 +115,12 @@ abstract class BaseRepository implements RepositoryInterface
         return $result;
     }
 
-    public function get($columns = ['*']): array|Collection
+    public function get($columns = ['*']): Collection|array
     {
         return $this->all($columns);
     }
 
-    public function first($columns = ['*'])
+    public function first($columns = ['*']): Model|Builder
     {
         $this->applyScope();
 
@@ -131,7 +131,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $result;
     }
 
-    public function firstOrNew(array $attributes = [])
+    public function firstOrNew(array $attributes = []): Model|Builder
     {
         $this->applyScope();
 
@@ -142,7 +142,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function firstOrCreate(array $attributes = [])
+    public function firstOrCreate(array $attributes = []): Model|Builder
     {
         $this->applyScope();
 
@@ -159,7 +159,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->all($columns);
     }
 
-    public function paginate($limit = null, $columns = ['*'], $method = "paginate")
+    public function paginate($limit = null, $columns = ['*'], $method = "paginate"): mixed
     {
         $this->applyScope();
 
@@ -179,7 +179,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->paginate($limit, $columns, "simplePaginate");
     }
 
-    public function find(int $id, $columns = ['*'])
+    public function find(int $id, $columns = ['*']): Model|Builder
     {
         $this->applyScope();
         $model = $this->model->findOrFail($id, $columns);
@@ -188,7 +188,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findByField(string $field, $value = null, $columns = ['*'])
+    public function findByField(string $field, $value = null, $columns = ['*']): Collection|array
     {
         $this->applyScope();
         $model = $this->model->where($field, '=', $value)->get($columns);
@@ -197,7 +197,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findWhere(array $where, $columns = ['*'])
+    public function findWhere(array $where, $columns = ['*']): Collection|array
     {
         $this->applyScope();
         $this->applyConditions($where);
@@ -207,7 +207,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findWhereIn($field, array $values, $columns = ['*'])
+    public function findWhereIn($field, array $values, $columns = ['*']): Collection|array
     {
         $this->applyScope();
         $model = $this->model->whereIn($field, $values)->get($columns);
@@ -216,7 +216,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findWhereNotIn($field, array $values, $columns = ['*'])
+    public function findWhereNotIn($field, array $values, $columns = ['*']): Collection|array
     {
         $this->applyScope();
         $model = $this->model->whereNotIn($field, $values)->get($columns);
@@ -225,7 +225,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findWhereBetween($field, array $values, $columns = ['*'])
+    public function findWhereBetween($field, array $values, $columns = ['*']): Collection|array
     {
         $this->applyScope();
         $model = $this->model->whereBetween($field, $values)->get($columns);
@@ -245,7 +245,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function update(array $attributes, $id)
+    public function update(array $attributes, int $id): Model
     {
         $this->applyScope();
 
@@ -258,7 +258,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function updateOrCreate(array $attributes, array $values = [])
+    public function updateOrCreate(array $attributes, array $values = []): Model|Builder
     {
         $this->applyScope();
 
@@ -334,7 +334,7 @@ abstract class BaseRepository implements RepositoryInterface
         });
     }
 
-    public function visible(array $fields)
+    public function visible(array $fields): BaseRepository
     {
         return tap($this, function () use ($fields) {
             $this->model->setVisible($fields);

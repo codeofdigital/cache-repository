@@ -4,6 +4,9 @@ namespace CodeOfDigital\CacheRepository\Traits;
 
 use CodeOfDigital\CacheRepository\Helpers\CacheKeys;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 
 trait Cacheable
@@ -108,7 +111,7 @@ trait Cacheable
         return Config::get('repository.cache.minutes', 30) * 60;
     }
 
-    public function all($columns = ['*'])
+    public function all($columns = ['*']): Collection|array
     {
         if (!$this->allowedCache('all') || $this->isSkippedCache())
             return parent::all($columns);
@@ -125,7 +128,7 @@ trait Cacheable
         return $value;
     }
 
-    public function paginate($limit = null, $columns = ['*'], $method = 'paginate')
+    public function paginate($limit = null, $columns = ['*'], $method = 'paginate'): mixed
     {
         if (!$this->allowedCache('paginate') || $this->isSkippedCache()) {
             return parent::paginate($limit, $columns, $method);
@@ -143,7 +146,7 @@ trait Cacheable
         return $value;
     }
 
-    public function find(int $id, $columns = ['*'])
+    public function find(int $id, $columns = ['*']): Model|Builder
     {
         if (!$this->allowedCache('find') || $this->isSkippedCache()) {
             return parent::find($id, $columns);
@@ -161,7 +164,7 @@ trait Cacheable
         return $value;
     }
 
-    public function findByField(string $field, $value = null, $columns = ['*'])
+    public function findByField(string $field, $value = null, $columns = ['*']): Collection|array
     {
         if (!$this->allowedCache('findByField') || $this->isSkippedCache()) {
             return parent::findByField($field, $columns);
@@ -179,7 +182,7 @@ trait Cacheable
         return $value;
     }
 
-    public function findWhere(array $where, $columns = ['*'])
+    public function findWhere(array $where, $columns = ['*']): Collection|array
     {
         if (!$this->allowedCache('findWhere') || $this->isSkippedCache()) {
             return parent::findWhere($where, $columns);
