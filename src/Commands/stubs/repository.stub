@@ -12,7 +12,7 @@ class %modelName%Repository extends BaseRepository implements %interface%
      *
      * @return string
      */
-    public function model()
+    public function model(): string
     {
         return %modelName%::class;
     }

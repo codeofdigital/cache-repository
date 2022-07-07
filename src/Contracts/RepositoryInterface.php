@@ -3,9 +3,7 @@
 namespace CodeOfDigital\CacheRepository\Contracts;
 
 use Closure;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 interface RepositoryInterface
 {
@@ -21,11 +19,11 @@ interface RepositoryInterface
 
     public function get($columns = ['*']): mixed;
 
-    public function first($columns = ['*']): Model|Builder;
+    public function first($columns = ['*']): mixed;
 
-    public function firstOrNew(array $attributes = []): Model|Builder;
+    public function firstOrNew(array $attributes = []): mixed;
 
-    public function firstOrCreate(array $attributes = []): Model|Builder;
+    public function firstOrCreate(array $attributes = []): mixed;
 
     public function limit($limit, $columns = ['*']): mixed;
 
@@ -33,7 +31,7 @@ interface RepositoryInterface
 
     public function simplePaginate($limit = null, $columns = ['*']): mixed;
 
-    public function find(int $id, $columns = ['*']): Model|Builder;
+    public function find(int $id, $columns = ['*']): mixed;
 
     public function findByField(string $field, $value, $columns = ['*']): Collection|array;
 
@@ -45,19 +43,19 @@ interface RepositoryInterface
 
     public function findWhereBetween($field, array $values, $columns = ['*']): Collection|array;
 
-    public function create(array $attributes): Model;
+    public function create(array $attributes): mixed;
 
-    public function update(array $attributes, int $id): Model;
+    public function update(array $attributes, int $id): mixed;
 
-    public function updateOrCreate(array $attributes, array $values = []): Model|Builder;
+    public function updateOrCreate(array $attributes, array $values = []): mixed;
 
-    public function delete(int $id): Model;
+    public function delete(int $id): mixed;
 
     public function deleteWhere(array $where): ?bool;
 
-    public function forceDelete(int $id): Model;
+    public function forceDelete(int $id): mixed;
 
-    public function restore(int $id): Model;
+    public function restore(int $id): mixed;
 
     public function has($relation): static;
 

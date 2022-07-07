@@ -113,7 +113,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->all($columns);
     }
 
-    public function first($columns = ['*']): Model|Builder
+    public function first($columns = ['*']): mixed
     {
         $this->applyScope();
 
@@ -124,7 +124,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $result;
     }
 
-    public function firstOrNew(array $attributes = []): Model|Builder
+    public function firstOrNew(array $attributes = []): mixed
     {
         $this->applyScope();
 
@@ -135,7 +135,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function firstOrCreate(array $attributes = []): Model|Builder
+    public function firstOrCreate(array $attributes = []): mixed
     {
         $this->applyScope();
 
@@ -172,7 +172,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->paginate($limit, $columns, "simplePaginate");
     }
 
-    public function find(int $id, $columns = ['*']): Model|Builder
+    public function find(int $id, $columns = ['*']): mixed
     {
         $this->applyScope();
         $model = $this->model->findOrFail($id, $columns);
@@ -227,7 +227,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function create(array $attributes): Model
+    public function create(array $attributes): mixed
     {
         $model = $this->model->newInstance($attributes);
         $model->save();
@@ -238,7 +238,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function update(array $attributes, int $id): Model
+    public function update(array $attributes, int $id): mixed
     {
         $this->applyScope();
 
@@ -251,7 +251,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function updateOrCreate(array $attributes, array $values = []): Model|Builder
+    public function updateOrCreate(array $attributes, array $values = []): mixed
     {
         $this->applyScope();
 
@@ -263,7 +263,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function delete(int $id): Model
+    public function delete(int $id): mixed
     {
         return $this->manageDeletes($id, 'delete');
     }
@@ -282,12 +282,12 @@ abstract class BaseRepository implements RepositoryInterface
         return $deleted;
     }
 
-    public function forceDelete(int $id): Model
+    public function forceDelete(int $id): mixed
     {
         return $this->manageDeletes($id, 'forceDelete');
     }
 
-    public function restore(int $id): Model
+    public function restore(int $id): mixed
     {
         return $this->manageDeletes($id, 'restore');
     }

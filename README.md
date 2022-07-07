@@ -8,5 +8,5 @@ Laravel Repository design pattern package that comes with caching features
 </p>
 
 ## Overview
-Laravel package that revolves around Repository design pattern to encapsulate database-related functions and reuse in other classes.
+Laravel package that revolves around Repository design pattern to encapsulate database-related functions, making our application more flexible and classes are reusable.
 Comes with normal repository features and caching features as well.
