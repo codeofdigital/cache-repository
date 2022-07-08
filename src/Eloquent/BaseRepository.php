@@ -243,8 +243,10 @@ abstract class BaseRepository implements RepositoryInterface
         $this->applyScope();
 
         $model = $this->model->findOrFail($id);
+
         $model->fill($attributes);
         $model->save();
+        $this->resetModel();
 
         event(new RepositoryEntityUpdated($this, $model));
 
