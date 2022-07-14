@@ -70,7 +70,13 @@ abstract class BaseRepository implements RepositoryInterface
     public function pluck($column, $key = null): mixed
     {
         $this->applyScope();
-        return $this->model->pluck($column, $key);
+        
+        $results = $this->model->pluck($column, $key);
+
+        $this->resetModel();
+        $this->resetScope();
+
+        return $results;
     }
 
     public function sync($id, $relation, $attributes, $detaching = true): mixed
