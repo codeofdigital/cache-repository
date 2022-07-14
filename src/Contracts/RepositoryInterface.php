@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface RepositoryInterface
 {
-    public function pluck($column, $key = null): Collection|array;
+    public function pluck($column, $key = null): mixed;
 
     public function sync($id, $relation, $attributes, $detaching = true): mixed;
 

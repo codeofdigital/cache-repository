@@ -67,7 +67,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->model = $model;
     }
 
-    public function pluck($column, $key = null): Collection|array
+    public function pluck($column, $key = null): mixed
     {
         return $this->model->pluck($column, $key);
     }
