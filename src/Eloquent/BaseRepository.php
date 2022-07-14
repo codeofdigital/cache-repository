@@ -69,6 +69,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function pluck($column, $key = null): mixed
     {
+        $this->applyScope();
         return $this->model->pluck($column, $key);
     }
 
