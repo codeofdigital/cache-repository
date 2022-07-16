@@ -112,7 +112,7 @@ trait Cacheable
         return Config::get('repository.cache.minutes', 30) * 60;
     }
 
-    public function all($columns = ['*']): Collection|array
+    public function all($columns = ['*']): mixed
     {
         if (!$this->allowedCache('all') || $this->isSkippedCache())
             return parent::all($columns);
@@ -147,7 +147,7 @@ trait Cacheable
         return $value;
     }
 
-    public function find(int $id, $columns = ['*']): Model|Builder
+    public function find(int $id, $columns = ['*']): mixed
     {
         if (!$this->allowedCache('find') || $this->isSkippedCache()) {
             return parent::find($id, $columns);
@@ -165,7 +165,7 @@ trait Cacheable
         return $value;
     }
 
-    public function findByField(string $field, $value = null, $columns = ['*']): Collection|array
+    public function findByField(string $field, $value = null, $columns = ['*']): mixed
     {
         if (!$this->allowedCache('findByField') || $this->isSkippedCache()) {
             return parent::findByField($field, $columns);
@@ -183,7 +183,7 @@ trait Cacheable
         return $value;
     }
 
-    public function findWhere(array $where, $columns = ['*']): Collection|array
+    public function findWhere(array $where, $columns = ['*']): mixed
     {
         if (!$this->allowedCache('findWhere') || $this->isSkippedCache()) {
             return parent::findWhere($where, $columns);
@@ -201,7 +201,7 @@ trait Cacheable
         return $value;
     }
 
-    public function getByCriteria(CriteriaInterface $criteria)
+    public function getByCriteria(CriteriaInterface $criteria): mixed
     {
         if (!$this->allowedCache('getByCriteria') || $this->isSkippedCache()) {
             return parent::getByCriteria($criteria);
