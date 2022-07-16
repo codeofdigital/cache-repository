@@ -118,7 +118,7 @@ class RepositoryCommand extends BaseCommand
 
         $this->fileManager->put($filePath, $content);
 
-        $this->info("The interface [{$fileName}] has been created");
+        $this->info("The interface [{$fileName}] has been created.");
 
         return ["{$this->appNamespace}Repository\\{$this->modelName}\\{$fileName}", $fileName];
     }

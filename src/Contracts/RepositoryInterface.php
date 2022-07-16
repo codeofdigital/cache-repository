@@ -33,15 +33,15 @@ interface RepositoryInterface
 
     public function find(int $id, $columns = ['*']): mixed;
 
-    public function findByField(string $field, $value, $columns = ['*']): Collection|array;
+    public function findByField(string $field, $value, $columns = ['*']): mixed;
 
-    public function findWhere(array $where, $columns = ['*']): Collection|array;
+    public function findWhere(array $where, $columns = ['*']): mixed;
 
-    public function findWhereIn($field, array $values, $columns = ['*']): Collection|array;
+    public function findWhereIn($field, array $values, $columns = ['*']): mixed;
 
-    public function findWhereNotIn($field, array $values, $columns = ['*']): Collection|array;
+    public function findWhereNotIn($field, array $values, $columns = ['*']): mixed;
 
-    public function findWhereBetween($field, array $values, $columns = ['*']): Collection|array;
+    public function findWhereBetween($field, array $values, $columns = ['*']): mixed;
 
     public function create(array $attributes): mixed;
 

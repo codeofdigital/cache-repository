@@ -1,0 +1,22 @@
+<?php
+
+namespace %namespace%;
+
+use CodeOfDigital\CacheRepository\Contracts\CriteriaInterface;
+use CodeOfDigital\CacheRepository\Contracts\RepositoryInterface;
+use Illuminate\Database\Eloquent\Model;
+
+class %criteriaName% implements CriteriaInterface
+{
+    /**
+     * Apply conditions into current query building
+     *
+     * @param Model $model
+     * @param RepositoryInterface $repository
+     * @return mixed
+     */
+    public function apply(Model $model, RepositoryInterface $repository): mixed
+    {
+        // TODO: Write your model queries
+    }
+}

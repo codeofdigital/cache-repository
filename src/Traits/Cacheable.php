@@ -2,6 +2,7 @@
 
 namespace CodeOfDigital\CacheRepository\Traits;
 
+use CodeOfDigital\CacheRepository\Contracts\CriteriaInterface;
 use CodeOfDigital\CacheRepository\Helpers\CacheKeys;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Database\Eloquent\Builder;
@@ -192,6 +193,24 @@ trait Cacheable
         $minutes = $this->cacheMinutes;
         $value = $this->cacheRepository->remember($key, $minutes, function () use ($where, $columns) {
             return parent::findWhere($where, $columns);
+        });
+
+        $this->resetModel();
+        $this->resetScope();
+
+        return $value;
+    }
+
+    public function getByCriteria(CriteriaInterface $criteria)
+    {
+        if (!$this->allowedCache('getByCriteria') || $this->isSkippedCache()) {
+            return parent::getByCriteria($criteria);
+        }
+
+        $key = $this->getCacheKey('getByCriteria', func_get_args());
+        $minutes = $this->cacheMinutes;
+        $value = $this->cacheRepository->remember($key, $minutes, function () use ($criteria) {
+            return parent::getByCriteria($criteria);
         });
 
         $this->resetModel();

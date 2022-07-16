@@ -2,6 +2,7 @@
 
 namespace CodeOfDigital\CacheRepository;
 
+use CodeOfDigital\CacheRepository\Commands\CriteriaCommand;
 use CodeOfDigital\CacheRepository\Commands\RepositoryCommand;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,7 +25,9 @@ class CacheRepositoryServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
 
-        if ($this->app->runningInConsole())
+        if ($this->app->runningInConsole()) {
             $this->commands([RepositoryCommand::class]);
+            $this->commands([CriteriaCommand::class]);
+        }
     }
 }

@@ -3,19 +3,21 @@
 namespace CodeOfDigital\CacheRepository\Eloquent;
 
 use Closure;
+use CodeOfDigital\CacheRepository\Contracts\CriteriaInterface;
+use CodeOfDigital\CacheRepository\Contracts\RepositoryCriteriaInterface;
+use CodeOfDigital\CacheRepository\Contracts\RepositoryInterface;
 use CodeOfDigital\CacheRepository\Events\RepositoryEntityCreated;
 use CodeOfDigital\CacheRepository\Events\RepositoryEntityDeleted;
 use CodeOfDigital\CacheRepository\Events\RepositoryEntityUpdated;
 use CodeOfDigital\CacheRepository\Exceptions\RepositoryException;
-use CodeOfDigital\CacheRepository\Contracts\RepositoryInterface;
 use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 
-abstract class BaseRepository implements RepositoryInterface
+abstract class BaseRepository implements RepositoryInterface, RepositoryCriteriaInterface
 {
     /**
      * @var Application
@@ -30,15 +32,30 @@ abstract class BaseRepository implements RepositoryInterface
     protected Model|Builder $model;
 
     /**
+     * Collection of Criteria
+     *
+     * @var Collection
+     */
+    protected Collection $criteria;
+
+    /**
      * Query set within the scope
      *
      * @var Closure|null
      */
     protected ?Closure $scopeQuery;
 
+    /**
+     * Whether to skip querying criteria
+     *
+     * @var bool
+     */
+    protected bool $skipCriteria = false;
+
     public function __construct(Application $app)
     {
         $this->app = $app;
+        $this->criteria = new Collection();
         $this->makeModel();
         $this->boot();
     }
@@ -69,6 +86,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function pluck($column, $key = null): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
         
         $results = $this->model->pluck($column, $key);
@@ -91,6 +109,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function all($columns = ['*']): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
 
         $results = $this->model->get($columns);
@@ -103,6 +122,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function count(array $where = [], $columns = '*'): int
     {
+        $this->applyCriteria();
         $this->applyScope();
 
         if ($where) $this->applyConditions($where);
@@ -122,6 +142,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function first($columns = ['*']): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
 
         $result = $this->model->first($columns);
@@ -133,6 +154,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function firstOrNew(array $attributes = []): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
 
         $model = $this->model->firstOrNew($attributes);
@@ -144,6 +166,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function firstOrCreate(array $attributes = []): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
 
         $model = $this->model->firstOrCreate($attributes);
@@ -161,6 +184,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function paginate($limit = null, $columns = ['*'], $method = "paginate"): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
 
         $limit = is_null($limit) ? Config::get('repository.pagination.limit', 15) : $limit;
@@ -181,6 +205,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function find(int $id, $columns = ['*']): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
         $model = $this->model->findOrFail($id, $columns);
         $this->resetModel();
@@ -188,8 +213,9 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findByField(string $field, $value = null, $columns = ['*']): Collection|array
+    public function findByField(string $field, $value = null, $columns = ['*']): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
         $model = $this->model->where($field, '=', $value)->get($columns);
         $this->resetModel();
@@ -197,18 +223,22 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findWhere(array $where, $columns = ['*']): Collection|array
+    public function findWhere(array $where, $columns = ['*']): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
+
         $this->applyConditions($where);
+
         $model = $this->model->get($columns);
         $this->resetModel();
 
         return $model;
     }
 
-    public function findWhereIn($field, array $values, $columns = ['*']): Collection|array
+    public function findWhereIn($field, array $values, $columns = ['*']): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
         $model = $this->model->whereIn($field, $values)->get($columns);
         $this->resetModel();
@@ -216,8 +246,9 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findWhereNotIn($field, array $values, $columns = ['*']): Collection|array
+    public function findWhereNotIn($field, array $values, $columns = ['*']): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
         $model = $this->model->whereNotIn($field, $values)->get($columns);
         $this->resetModel();
@@ -225,8 +256,9 @@ abstract class BaseRepository implements RepositoryInterface
         return $model;
     }
 
-    public function findWhereBetween($field, array $values, $columns = ['*']): Collection|array
+    public function findWhereBetween($field, array $values, $columns = ['*']): mixed
     {
+        $this->applyCriteria();
         $this->applyScope();
         $model = $this->model->whereBetween($field, $values)->get($columns);
         $this->resetModel();
@@ -357,6 +389,61 @@ abstract class BaseRepository implements RepositoryInterface
         });
     }
 
+    public function pushCriteria($criteria): static
+    {
+        return tap($this, function () use ($criteria) {
+            if (is_string($criteria)) $criteria = new $criteria;
+
+            if (!$criteria instanceof CriteriaInterface)
+                throw new RepositoryException('Class ' . get_class($criteria) . ' must be an instance of CriteriaInterface');
+
+            $this->criteria->push($criteria);
+        });
+    }
+
+    public function popCriteria($criteria): static
+    {
+        return tap($this, function () use ($criteria) {
+            $this->criteria = $this->criteria->reject(function ($item) use ($criteria) {
+                if (is_object($item) && is_string($criteria))
+                    return get_class($item) === $criteria;
+
+                if (is_object($criteria) && is_string($item))
+                    return $item === get_class($criteria);
+
+                return get_class($item) === get_class($criteria);
+            });
+        });
+    }
+
+    public function getCriteria(): Collection
+    {
+        return $this->criteria;
+    }
+
+    public function getByCriteria(CriteriaInterface $criteria): mixed
+    {
+        $this->model = $criteria->apply($this->model, $this);
+        $results = $this->model->get();
+        $this->resetModel();
+
+        return $results;
+    }
+
+    public function skipCriteria(bool $status = true): static
+    {
+        return tap($this, function () use ($status) {
+            $this->skipCriteria = $status;
+        });
+    }
+
+    public function resetCriteria(): static
+    {
+        return tap($this, function () {
+            $this->criteria = new Collection();
+        });
+    }
+
     public function scopeQuery(Closure $scope): static
     {
         return tap($this, function () use ($scope) {
@@ -379,6 +466,22 @@ abstract class BaseRepository implements RepositoryInterface
                 $this->model = $callback($this->model);
             }
         });
+    }
+
+    protected function applyCriteria(): static
+    {
+        if ($this->skipCriteria) return $this;
+
+        $criteria = $this->getCriteria();
+
+        if ($criteria->isNotEmpty()) {
+            foreach ($criteria as $criterion) {
+                if ($criterion instanceof CriteriaInterface)
+                    $this->model = $criterion->apply($this->model, $this);
+            }
+        }
+
+        return $this;
     }
 
     protected function manageDeletes(int $id, string $method)
@@ -495,7 +598,9 @@ abstract class BaseRepository implements RepositoryInterface
 
     public function __call($method, $arguments)
     {
+        $this->applyCriteria();
         $this->applyScope();
+
         return call_user_func_array([$this->model, $method], $arguments);
     }
 }

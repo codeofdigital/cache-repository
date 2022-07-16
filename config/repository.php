@@ -18,7 +18,7 @@ return [
     |--------------------------------------------------------------------------
     |
     */
-    'cache'      => [
+    'cache' => [
         /*
          |--------------------------------------------------------------------------
          | Cache Status
@@ -27,7 +27,7 @@ return [
          | Enable or disable cache
          |
          */
-        'enabled'    => false,
+        'enabled' => false,
 
         /*
          |--------------------------------------------------------------------------
@@ -37,7 +37,7 @@ return [
          | Time of expiration cache
          |
          */
-        'minutes'    => 30,
+        'minutes' => 60,
 
         /*
          |--------------------------------------------------------------------------
@@ -57,7 +57,7 @@ return [
           |
           |
           */
-        'clean'      => [
+        'clean' => [
 
             /*
               |--------------------------------------------------------------------------
@@ -77,14 +77,14 @@ return [
               | delete : Clear Cache on delete Entry in repository
               |
               */
-            'on'      => [
+            'on' => [
                 'create' => true,
                 'update' => true,
                 'delete' => true,
             ]
         ],
 
-        'params'     => [
+        'params' => [
             /*
             |--------------------------------------------------------------------------
             | Skip Cache Params
@@ -112,8 +112,8 @@ return [
        |
        | 'except'  =>['find'],
        */
-        'allowed'    => [
-            'only'   => null,
+        'allowed' => [
+            'only' => ['all', 'paginate', 'find', 'findByField', 'findWhere', 'getByCriteria'],
             'except' => null
         ]
     ],
