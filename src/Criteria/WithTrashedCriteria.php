@@ -21,7 +21,7 @@ class WithTrashedCriteria implements CriteriaInterface
      */
     public function apply(Model|Builder $model, RepositoryInterface $repository): mixed
     {
-        if (!in_array(SoftDeletes::class, class_uses($model)))
+        if (!method_exists($model, 'withTrashed'))
             throw new RepositoryException('Model must implement SoftDeletes Trait to use this criteria.');
 
         return $model->withTrashed();
