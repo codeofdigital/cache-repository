@@ -491,7 +491,12 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         if (($method === 'forceDelete' || $method === 'restore') && !in_array(SoftDeletes::class, class_uses($this->model)))
             throw new RepositoryException("Model must implement SoftDeletes Trait to use forceDelete() or restore() method.");
 
-        $model = $this->model->withTrashed()->find($id);
+        if ($method === 'forceDelete' || $method === 'restore')
+            $model = $this->model->withTrashed();
+        else
+            $model = $this->model;
+
+        $model = $model->find($id);
         $originalModel = clone $model;
 
         $this->resetModel();

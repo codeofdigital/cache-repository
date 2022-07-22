@@ -48,7 +48,7 @@ class CriteriaCommand extends BaseCommand
         $content = $this->fileManager->get($this->stubs['criteria']);
 
         $replacements = [
-            '%namespace%' => "{$this->appNamespace}Criteria\\{$criteria}",
+            '%namespace%' => "{$this->appNamespace}Criteria",
             '%criteriaName%' => $this->criteriaName
         ];
 
