@@ -266,10 +266,13 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $model;
     }
 
-    public function create(array $attributes): mixed
+    public function create(array $attributes, bool $withoutEvents = false): mixed
     {
         $model = $this->model->newInstance($attributes);
-        $model->save();
+
+        $method = $withoutEvents ? 'saveQuietly' : 'save';
+        $model->{$method}();
+
         $this->resetModel();
 
         event(new RepositoryEntityCreated($this, $model));
@@ -277,14 +280,17 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $model;
     }
 
-    public function update(array $attributes, int $id): mixed
+    public function update(array $attributes, int $id, bool $withoutEvents = false): mixed
     {
         $this->applyScope();
 
         $model = $this->model->findOrFail($id);
 
         $model->fill($attributes);
-        $model->save();
+
+        $method = $withoutEvents ? 'saveQuietly' : 'save';
+        $model->{$method}();
+
         $this->resetModel();
 
         event(new RepositoryEntityUpdated($this, $model));

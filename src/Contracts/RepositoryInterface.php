@@ -43,9 +43,9 @@ interface RepositoryInterface
 
     public function findWhereBetween($field, array $values, $columns = ['*']): mixed;
 
-    public function create(array $attributes): mixed;
+    public function create(array $attributes, bool $withoutEvents = false): mixed;
 
-    public function update(array $attributes, int $id): mixed;
+    public function update(array $attributes, int $id, bool $withoutEvents = false): mixed;
 
     public function updateOrCreate(array $attributes, array $values = []): mixed;
 
