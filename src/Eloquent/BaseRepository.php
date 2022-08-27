@@ -280,6 +280,17 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $model;
     }
 
+    public function insert(array $attributes): ?bool
+    {
+        $inserted = $this->model->insert($attributes);
+
+        event(new RepositoryEntityCreated($this, $this->model->getModel()));
+
+        $this->resetModel();
+
+        return $inserted;
+    }
+
     public function update(array $attributes, int $id, bool $withoutEvents = false): mixed
     {
         $this->applyScope();
@@ -296,6 +307,20 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         event(new RepositoryEntityUpdated($this, $model));
 
         return $model;
+    }
+
+    public function updateWhere(array $where, array $attributes): ?bool
+    {
+        $this->applyScope();
+        $this->applyConditions($where);
+
+        $updated = $this->model->update($attributes);
+
+        event(new RepositoryEntityUpdated($this, $this->model->getModel()));
+
+        $this->resetModel();
+
+        return $updated;
     }
 
     public function updateOrCreate(array $attributes, array $values = []): mixed

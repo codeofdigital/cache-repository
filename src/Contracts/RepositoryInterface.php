@@ -45,7 +45,11 @@ interface RepositoryInterface
 
     public function create(array $attributes, bool $withoutEvents = false): mixed;
 
+    public function insert(array $attributes): ?bool;
+
     public function update(array $attributes, int $id, bool $withoutEvents = false): mixed;
+
+    public function updateWhere(array $where, array $attributes): ?bool;
 
     public function updateOrCreate(array $attributes, array $values = []): mixed;
 
