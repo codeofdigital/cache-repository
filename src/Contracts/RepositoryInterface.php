@@ -21,9 +21,9 @@ interface RepositoryInterface
 
     public function first($columns = ['*']): mixed;
 
-    public function firstOrNew(array $attributes = []): mixed;
+    public function firstOrNew(array $attributes, array $values = []): mixed;
 
-    public function firstOrCreate(array $attributes = []): mixed;
+    public function firstOrCreate(array $attributes, array $values = []): mixed;
 
     public function limit($limit, $columns = ['*']): mixed;
 

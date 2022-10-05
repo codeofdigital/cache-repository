@@ -152,26 +152,27 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $result;
     }
 
-    public function firstOrNew(array $attributes = []): mixed
+    public function firstOrNew(array $attributes, array $values = []): mixed
     {
         $this->applyCriteria();
         $this->applyScope();
 
-        $model = $this->model->firstOrNew($attributes);
+        $model = $this->model->firstOrNew($attributes, $values);
 
         $this->resetModel();
 
         return $model;
     }
 
-    public function firstOrCreate(array $attributes = []): mixed
+    public function firstOrCreate(array $attributes, array $values = []): mixed
     {
         $this->applyCriteria();
         $this->applyScope();
 
-        $model = $this->model->firstOrCreate($attributes);
-
+        $model = $this->model->firstOrCreate($attributes, $values);
         $this->resetModel();
+
+        event(new RepositoryEntityCreated($this, $model));
 
         return $model;
     }
