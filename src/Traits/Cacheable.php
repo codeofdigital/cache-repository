@@ -147,7 +147,7 @@ trait Cacheable
         return $value;
     }
 
-    public function find(int $id, $columns = ['*']): mixed
+    public function find(mixed $id, $columns = ['*']): mixed
     {
         if (!$this->allowedCache('find') || $this->isSkippedCache()) {
             return parent::find($id, $columns);

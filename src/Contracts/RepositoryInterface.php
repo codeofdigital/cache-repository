@@ -31,7 +31,7 @@ interface RepositoryInterface
 
     public function simplePaginate($limit = null, $columns = ['*']): mixed;
 
-    public function find(int $id, $columns = ['*']): mixed;
+    public function find(mixed $id, $columns = ['*']): mixed;
 
     public function findByField(string $field, $value, $columns = ['*']): mixed;
 
@@ -52,6 +52,8 @@ interface RepositoryInterface
     public function updateWhere(array $where, array $attributes): ?bool;
 
     public function updateOrCreate(array $attributes, array $values = []): mixed;
+
+    public function upsert(array $values, array|string $uniqueBy, array|null $update = null): int;
 
     public function delete(int $id): mixed;
 

@@ -204,7 +204,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $this->paginate($limit, $columns, "simplePaginate");
     }
 
-    public function find(int $id, $columns = ['*']): mixed
+    public function find(mixed $id, $columns = ['*']): mixed
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -334,6 +334,17 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         event(new RepositoryEntityUpdated($this, $model));
 
         return $model;
+    }
+
+    public function upsert(array $values, array|string $uniqueBy, ?array $update = null): int
+    {
+        $upserted = $this->model->upsert($values, $uniqueBy, $update);
+
+        event(new RepositoryEntityCreated($this, $this->model->getModel()));
+
+        $this->resetModel();
+
+        return $upserted;
     }
 
     public function delete(int $id): mixed
