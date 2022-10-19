@@ -366,6 +366,19 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $deleted;
     }
 
+    public function massDelete(): ?bool
+    {
+        $this->applyScope();
+
+        $deleted = $this->model->delete();
+
+        event(new RepositoryEntityDeleted($this, $this->model->getModel()));
+
+        $this->resetModel();
+
+        return $deleted;
+    }
+
     public function forceDelete(int $id): mixed
     {
         return $this->manageDeletes($id, 'forceDelete');

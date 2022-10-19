@@ -59,6 +59,8 @@ interface RepositoryInterface
 
     public function deleteWhere(array $where): ?bool;
 
+    public function massDelete(): ?bool;
+
     public function forceDelete(int $id): mixed;
 
     public function restore(int $id): mixed;
