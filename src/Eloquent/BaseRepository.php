@@ -152,6 +152,20 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $result;
     }
 
+    public function firstWhere(array $where, $columns = ['*']): mixed
+    {
+        $this->applyCriteria();
+        $this->applyScope();
+
+        $this->applyConditions($where);
+
+        $result = $this->model->first($columns);
+
+        $this->resetModel();
+
+        return $result;
+    }
+
     public function firstOrNew(array $attributes, array $values = []): mixed
     {
         $this->applyCriteria();

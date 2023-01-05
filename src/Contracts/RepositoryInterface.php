@@ -21,6 +21,8 @@ interface RepositoryInterface
 
     public function first($columns = ['*']): mixed;
 
+    public function firstWhere(array $where, $columns = ['*']): mixed;
+
     public function firstOrNew(array $attributes, array $values = []): mixed;
 
     public function firstOrCreate(array $attributes, array $values = []): mixed;
