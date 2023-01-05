@@ -310,12 +310,13 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $model;
     }
 
-    public function updateWhere(array $where, array $attributes): ?bool
+    public function updateWhere(array $where, array $attributes, bool $withoutEvents = false): ?bool
     {
         $this->applyScope();
         $this->applyConditions($where);
 
-        $updated = $this->model->update($attributes);
+        $method = $withoutEvents ? 'updateQuietly' : 'update';
+        $updated = $this->model->{$method}($attributes);
 
         event(new RepositoryEntityUpdated($this, $this->model->getModel()));
 
@@ -324,11 +325,12 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $updated;
     }
 
-    public function updateOrCreate(array $attributes, array $values = []): mixed
+    public function updateOrCreate(array $attributes, array $values = [], bool $withoutEvents = false): mixed
     {
         $this->applyScope();
 
-        $model = $this->model->updateOrCreate($attributes, $values);
+        $method = $withoutEvents ? 'saveQuietly' : 'save';
+        $model = tap($this->model->firstOrNew($attributes), fn ($instance) => $instance->fill($values)->{$method}());
         $this->resetModel();
 
         event(new RepositoryEntityUpdated($this, $model));

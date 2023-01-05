@@ -49,9 +49,9 @@ interface RepositoryInterface
 
     public function update(array $attributes, int $id, bool $withoutEvents = false): mixed;
 
-    public function updateWhere(array $where, array $attributes): ?bool;
+    public function updateWhere(array $where, array $attributes, bool $withoutEvents = false): ?bool;
 
-    public function updateOrCreate(array $attributes, array $values = []): mixed;
+    public function updateOrCreate(array $attributes, array $values = [], bool $withoutEvents = false): mixed;
 
     public function upsert(array $values, array|string $uniqueBy, array|null $update = null): int;
 
