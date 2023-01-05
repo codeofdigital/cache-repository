@@ -26,3 +26,10 @@ Execute the following command to get the latest version of the package:
 ```terminal
 composer require codeofdigital/cache-repository
 ```
+
+### Publish Config
+You can then publish the package's config file and database migrations file
+with the following command:
+
+```terminal
+php artisan vendor:publish --provider="CodeOfDigital\CacheRepository\CacheRepositoryServiceProvider"
