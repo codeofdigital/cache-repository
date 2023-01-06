@@ -25,7 +25,7 @@ interface RepositoryInterface
 
     public function firstOrNew(array $attributes, array $values = []): mixed;
 
-    public function firstOrCreate(array $attributes, array $values = []): mixed;
+    public function firstOrCreate(array $attributes, array $values = [], bool $withoutEvents = false): mixed;
 
     public function limit($limit, $columns = ['*']): mixed;
 
