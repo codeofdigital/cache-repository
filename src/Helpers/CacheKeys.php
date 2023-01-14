@@ -2,6 +2,8 @@
 
 namespace CodeOfDigital\CacheRepository\Helpers;
 
+use Illuminate\Support\Facades\Config;
+
 class CacheKeys
 {
     protected static string $storeFile = 'repository-cache-keys.json';
@@ -39,7 +41,7 @@ class CacheKeys
 
     public static function getFileKeys(): string
     {
-        return storage_path('framework/cache/' . self::$storeFile);
+        return Config::get('repository.cache.path', storage_path('framework/cache/')) . self::$storeFile;
     }
 
     public static function storeKeys(): bool|int
