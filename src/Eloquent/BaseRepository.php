@@ -12,6 +12,7 @@ use CodeOfDigital\CacheRepository\Events\RepositoryEntityUpdated;
 use CodeOfDigital\CacheRepository\Exceptions\RepositoryException;
 use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -544,6 +545,17 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
                 $this->model = $callback($this->model);
             }
         });
+    }
+
+    public function getBaseQuery(): QueryBuilder
+    {
+        $this->applyCriteria();
+        $this->applyScope();
+
+        $query = $this->model->toBase();
+
+        $this->resetModel();
+        return $query;
     }
 
     protected function applyCriteria(): static

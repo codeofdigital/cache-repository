@@ -89,6 +89,8 @@ interface RepositoryInterface
 
     public function applyScope(): static;
 
+    public function getBaseQuery(): mixed;
+
     public static function __callStatic($method, $arguments);
 
     public function __call($method, $arguments);
