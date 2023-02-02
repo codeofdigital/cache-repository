@@ -578,7 +578,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
     {
         $this->applyScope();
 
-        if (($method === 'forceDelete' || $method === 'restore') && !in_array(SoftDeletes::class, class_uses($this->model)))
+        if (($method === 'forceDelete' || $method === 'restore') && !in_array(SoftDeletes::class, class_uses($this->model->getModel())))
             throw new RepositoryException("Model must implement SoftDeletes Trait to use forceDelete() or restore() method.");
 
         if ($method === 'forceDelete' || $method === 'restore')
