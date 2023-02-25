@@ -375,12 +375,13 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         return $this->manageDeletes($id, 'delete');
     }
 
-    public function deleteWhere(array $where): ?bool
+    public function deleteWhere(array $where, bool $forceDelete = false): ?bool
     {
         $this->applyScope();
         $this->applyConditions($where);
 
-        $deleted = $this->model->delete();
+        $method = $forceDelete ? 'forceDelete' : 'delete';
+        $deleted = $this->model->{$method}();
 
         event(new RepositoryEntityDeleted($this, $this->model->getModel()));
 
