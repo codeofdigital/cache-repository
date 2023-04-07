@@ -149,6 +149,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         $result = $this->model->first($columns);
 
         $this->resetModel();
+        $this->resetScope();
 
         return $result;
     }
@@ -163,6 +164,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         $result = $this->model->first($columns);
 
         $this->resetModel();
+        $this->resetScope();
 
         return $result;
     }
@@ -175,6 +177,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         $model = $this->model->firstOrNew($attributes, $values);
 
         $this->resetModel();
+        $this->resetScope();
 
         return $model;
     }
@@ -186,12 +189,15 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
 
         if (!is_null($model = $this->model->where($attributes)->first())) {
             $this->resetModel();
+            $this->resetScope();
             return $model;
         }
 
         $method = $withoutEvents ? 'saveQuietly' : 'save';
         $model = tap($this->model->newModelInstance([...$attributes, ...$values]), fn ($instance) => $instance->{$method}());
+
         $this->resetModel();
+        $this->resetScope();
 
         event(new RepositoryEntityCreated($this, $model));
 
@@ -216,6 +222,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         $results->appends(app('request')->query());
 
         $this->resetModel();
+        $this->resetScope();
 
         return $results;
     }
@@ -229,8 +236,11 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
     {
         $this->applyCriteria();
         $this->applyScope();
+
         $model = $this->model->findOrFail($id, $columns);
+
         $this->resetModel();
+        $this->resetScope();
 
         return $model;
     }
@@ -239,8 +249,11 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
     {
         $this->applyCriteria();
         $this->applyScope();
+
         $model = $this->model->where($field, '=', $value)->get($columns);
+
         $this->resetModel();
+        $this->resetScope();
 
         return $model;
     }
@@ -253,7 +266,9 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         $this->applyConditions($where);
 
         $model = $this->model->get($columns);
+
         $this->resetModel();
+        $this->resetScope();
 
         return $model;
     }
@@ -262,8 +277,11 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
     {
         $this->applyCriteria();
         $this->applyScope();
+
         $model = $this->model->whereIn($field, $values)->get($columns);
+
         $this->resetModel();
+        $this->resetScope();
 
         return $model;
     }
@@ -272,8 +290,11 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
     {
         $this->applyCriteria();
         $this->applyScope();
+
         $model = $this->model->whereNotIn($field, $values)->get($columns);
+
         $this->resetModel();
+        $this->resetScope();
 
         return $model;
     }
@@ -282,8 +303,11 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
     {
         $this->applyCriteria();
         $this->applyScope();
+
         $model = $this->model->whereBetween($field, $values)->get($columns);
+
         $this->resetModel();
+        $this->resetScope();
 
         return $model;
     }
@@ -325,6 +349,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         $model->{$method}();
 
         $this->resetModel();
+        $this->resetScope();
 
         event(new RepositoryEntityUpdated($this, $model));
 
@@ -342,6 +367,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         event(new RepositoryEntityUpdated($this, $this->model->getModel()));
 
         $this->resetModel();
+        $this->resetScope();
 
         return $updated;
     }
@@ -352,7 +378,9 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
 
         $method = $withoutEvents ? 'saveQuietly' : 'save';
         $model = tap($this->model->firstOrNew($attributes), fn ($instance) => $instance->fill($values)->{$method}());
+
         $this->resetModel();
+        $this->resetScope();
 
         event(new RepositoryEntityUpdated($this, $model));
 
@@ -366,6 +394,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         event(new RepositoryEntityCreated($this, $this->model->getModel()));
 
         $this->resetModel();
+        $this->resetScope();
 
         return $upserted;
     }
@@ -386,6 +415,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         event(new RepositoryEntityDeleted($this, $this->model->getModel()));
 
         $this->resetModel();
+        $this->resetScope();
 
         return $deleted;
     }
@@ -399,6 +429,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         event(new RepositoryEntityDeleted($this, $this->model->getModel()));
 
         $this->resetModel();
+        $this->resetScope();
 
         return $deleted;
     }
@@ -556,6 +587,8 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         $query = $this->model->toBase();
 
         $this->resetModel();
+        $this->resetScope();
+
         return $query;
     }
 
@@ -591,6 +624,7 @@ abstract class BaseRepository implements RepositoryInterface, RepositoryCriteria
         $originalModel = clone $model;
 
         $this->resetModel();
+        $this->resetScope();
 
         $model->{$method}();
 
